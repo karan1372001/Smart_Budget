@@ -3,45 +3,44 @@ package com.example.smart_budget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.smart_budget.ui.theme.Smart_BudgetTheme
+import androidx.compose.runtime.*
+import com.example.smart_budget.splash.SplashScreen
+import com.example.smart_budget.onboarding.OnboardingScreen
+import com.example.smart_budget.login.LoginScreen
+import com.example.smart_budget.signup.SignupScreen
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            Smart_BudgetTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+            // 👇 Student Comment: This state controls which screen is visible
+            var currentScreen by remember { mutableStateOf("splash") }
+
+            when (currentScreen) {
+
+                // SPLASH SCREEN → waits 2 sec → go to Onboarding
+                "splash" -> SplashScreen {
+                    currentScreen = "onboarding"
+                }
+
+                // ONBOARDING → user clicks Continue → go to Login
+                "onboarding" -> OnboardingScreen {
+                    currentScreen = "login"
+                }
+
+                // LOGIN → user clicks Next → go to Signup
+                "login" -> LoginScreen {
+                    currentScreen = "signup"
+                }
+
+                // SIGNUP → user clicks Back → go to Login
+                "signup" -> SignupScreen {
+                    currentScreen = "login"
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Smart_BudgetTheme {
-        Greeting("Android")
     }
 }

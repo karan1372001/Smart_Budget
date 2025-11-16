@@ -1,4 +1,4 @@
-package com.example.smart_budget.login
+package com.example.smart_budget.signup
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,9 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginScreen(onNext: () -> Unit) {
+fun SignupScreen(onBack: () -> Unit) {
 
-    // 👇 Student State Variables
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -19,7 +18,10 @@ fun LoginScreen(onNext: () -> Unit) {
             .padding(24.dp)
     ) {
 
-        Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "Sign Up",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -41,8 +43,8 @@ fun LoginScreen(onNext: () -> Unit) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) {
-            Text("Next")
+        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+            Text("Back to Login")
         }
     }
 }
