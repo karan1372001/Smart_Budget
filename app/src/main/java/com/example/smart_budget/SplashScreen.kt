@@ -13,14 +13,13 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(onNext: () -> Unit) {
 
-    // 👇 Student Comment:
     // This runs only once and waits 2 seconds before moving to the next screen.
     LaunchedEffect(Unit) {
         delay(2000)
         onNext()
     }
 
-    // 👇 Center text on screen
+    //  Center text on screen
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

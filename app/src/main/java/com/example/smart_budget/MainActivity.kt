@@ -16,27 +16,27 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            // 👇 Student Comment: This state controls which screen is visible
+            // This state controls which screen is visible
             var currentScreen by remember { mutableStateOf("splash") }
 
             when (currentScreen) {
 
-                // SPLASH SCREEN → waits 2 sec → go to Onboarding
+                // SPLASH SCREEN, waits 2 sec, go to Onboarding
                 "splash" -> SplashScreen {
                     currentScreen = "onboarding"
                 }
 
-                // ONBOARDING → user clicks Continue → go to Login
+                // ONBOARDING, user clicks Continue , go to Login
                 "onboarding" -> OnboardingScreen {
                     currentScreen = "login"
                 }
 
-                // LOGIN → user clicks Next → go to Signup
+                // LOGIN, user clicks Next, go to Signup
                 "login" -> LoginScreen {
                     currentScreen = "signup"
                 }
 
-                // SIGNUP → user clicks Back → go to Login
+                // SIGNUP, user clicks Back, go to Login
                 "signup" -> SignupScreen {
                     currentScreen = "login"
                 }

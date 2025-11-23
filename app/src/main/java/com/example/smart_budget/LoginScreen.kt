@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(onNext: () -> Unit) {
 
-    // 👇 Student State Variables
+    // State Variables
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
