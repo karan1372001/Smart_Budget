@@ -4,41 +4,49 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
-import com.example.smart_budget.splash.SplashScreen
-import com.example.smart_budget.onboarding.OnboardingScreen
-import com.example.smart_budget.login.LoginScreen
-import com.example.smart_budget.signup.SignupScreen
+import com.example.smart_budget.ui.*
+import com.example.smart_budget.ui.theme.SmartBudgetTheme
+
+// Enum to control which screen is visible
+enum class AppScreen {
+    SPLASH,
+    ONBOARDING,
+    LOGIN,
+    SIGNUP,
+    HOME
+}
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            SmartBudgetTheme {
+                // Single source of truth for navigation
+                var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
 
-            // This state controls which screen is visible
-            var currentScreen by remember { mutableStateOf("splash") }
+                when (currentScreen) {
+                    AppScreen.SPLASH -> SplashScreen(
+                        onTimeout = { currentScreen = AppScreen.ONBOARDING }
+                    )
 
-            when (currentScreen) {
+                    AppScreen.ONBOARDING -> OnboardingScreen(
+                        onGetStarted = { currentScreen = AppScreen.LOGIN }
+                    )
 
-                // SPLASH SCREEN, waits 2 sec, go to Onboarding
-                "splash" -> SplashScreen {
-                    currentScreen = "onboarding"
-                }
+                    AppScreen.LOGIN -> LoginScreen(
+                        onLoginSuccess = { currentScreen = AppScreen.HOME },
+                        onNavigateToSignup = { currentScreen = AppScreen.SIGNUP }
+                    )
 
-                // ONBOARDING, user clicks Continue , go to Login
-                "onboarding" -> OnboardingScreen {
-                    currentScreen = "login"
-                }
+                    AppScreen.SIGNUP -> SignupScreen(
+                        onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
+                        onSignupSuccess = { currentScreen = AppScreen.HOME }
+                    )
 
-                // LOGIN, user clicks Next, go to Signup
-                "login" -> LoginScreen {
-                    currentScreen = "signup"
-                }
-
-                // SIGNUP, user clicks Back, go to Login
-                "signup" -> SignupScreen {
-                    currentScreen = "login"
+                    AppScreen.HOME -> HomeScreen(
+                        onLogout = { currentScreen = AppScreen.LOGIN }
+                    )
                 }
             }
         }

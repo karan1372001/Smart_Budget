@@ -1,48 +1,196 @@
-package com.example.smart_budget.login
+package com.example.smart_budget.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.smart_budget.ui.util.PasswordValidationResult
+import com.example.smart_budget.ui.util.validatePassword
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
-fun LoginScreen(onNext: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onNavigateToSignup: () -> Unit
+) {
+    // Firebase auth instance – remember so it is not recreated on recomposition
+    val auth: FirebaseAuth = remember { Firebase.auth }
 
-    // State Variables
+    // Text field states
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Column(
+    // Error text for UI
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
+    // Loading state while Firebase is working
+    var isLoading by remember { mutableStateOf(false) }
+
+    // For Toast messages
+    val context = LocalContext.current
+
+    // Simple helper to validate email
+    fun validateEmail(): Boolean {
+        return if (email.isBlank()) {
+            emailError = "Please enter your email."
+            false
+        } else if (!email.contains("@")) {
+            emailError = "Please enter a valid email address."
+            false
+        } else {
+            emailError = null
+            true
+        }
+    }
+
+    // Called when user taps Login button
+    fun tryLogin() {
+        val emailOk = validateEmail()
+        val passwordResult: PasswordValidationResult = validatePassword(password)
+
+        if (!passwordResult.isValid) {
+            passwordError = passwordResult.message
+        } else {
+            passwordError = null
+        }
+
+        // If any validation failed, stop here
+        if (!emailOk || !passwordResult.isValid) return
+
+        isLoading = true
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                isLoading = false
+                if (task.isSuccessful) {
+                    // Success: go to Home screen
+                    onLoginSuccess()
+                } else {
+                    // Show Firebase error
+                    Toast.makeText(
+                        context,
+                        task.exception?.localizedMessage ?: "Login failed.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+    }
+
+    // -------- UI LAYOUT --------
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
     ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "SmartBudget",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = "Login",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+            )
 
-        Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
+            // EMAIL
+            OutlinedTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    emailError = null         // clear error on typing
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Email") },
+                singleLine = true,
+                isError = emailError != null
+            )
+            if (emailError != null) {
+                Text(
+                    text = emailError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            // PASSWORD
+            var hidePassword by remember { mutableStateOf(true) }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    passwordError = null      // clear error on typing
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Password") },
+                singleLine = true,
+                visualTransformation = if (hidePassword)
+                    PasswordVisualTransformation() else VisualTransformation.None,
+                trailingIcon = {
+                    TextButton(onClick = { hidePassword = !hidePassword }) {
+                        Text(if (hidePassword) "Show" else "Hide")
+                    }
+                },
+                isError = passwordError != null
+            )
+            if (passwordError != null) {
+                Text(
+                    text = passwordError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                )
+            }
 
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
+            // LOGIN BUTTON
+            Button(
+                onClick = { if (!isLoading) tryLogin() },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Login")
+                }
+            }
 
-        Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) {
-            Text("Next")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // NAVIGATE TO SIGNUP
+            TextButton(onClick = onNavigateToSignup) {
+                Text(
+                    text = "Don't have an account? Sign up",
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
