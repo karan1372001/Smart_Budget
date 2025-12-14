@@ -21,7 +21,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     kotlinOptions {
@@ -36,24 +36,20 @@ android {
 
 dependencies {
 
-    // Jetpack Compose
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    // Compose
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.compose.ui:ui:1.6.1")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.1")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.1")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.5")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // Icons
-    implementation("androidx.compose.material:material-icons-core")
-    implementation("androidx.compose.material:material-icons-extended")
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
 
-    // Firebase
+    // Firebase Auth
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
-
-    // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

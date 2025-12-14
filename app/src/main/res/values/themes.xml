@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Smart_Budget" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Simple Android theme just to start the app -->
+    <style name="Theme.SmartBudget"
+        parent="android:Theme.Material.Light.NoActionBar">
+    </style>
+
 </resources>

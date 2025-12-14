@@ -1,196 +1,109 @@
 package com.example.smart_budget.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
-import com.example.smart_budget.ui.util.PasswordValidationResult
-import com.example.smart_budget.ui.util.validatePassword
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.smart_budget.viewmodel.UserViewModel
 
+/**
+ * LoginScreen
+ * UI only – no Firebase logic here.
+ */
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onNavigateToSignup: () -> Unit
+    userViewModel: UserViewModel = viewModel()
 ) {
-    // Firebase auth instance – remember so it is not recreated on recomposition
-    val auth: FirebaseAuth = remember { Firebase.auth }
 
-    // Text field states
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
-    // Error text for UI
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-
-    // Loading state while Firebase is working
-    var isLoading by remember { mutableStateOf(false) }
-
-    // For Toast messages
-    val context = LocalContext.current
-
-    // Simple helper to validate email
-    fun validateEmail(): Boolean {
-        return if (email.isBlank()) {
-            emailError = "Please enter your email."
-            false
-        } else if (!email.contains("@")) {
-            emailError = "Please enter a valid email address."
-            false
-        } else {
-            emailError = null
-            true
-        }
-    }
-
-    // Called when user taps Login button
-    fun tryLogin() {
-        val emailOk = validateEmail()
-        val passwordResult: PasswordValidationResult = validatePassword(password)
-
-        if (!passwordResult.isValid) {
-            passwordError = passwordResult.message
-        } else {
-            passwordError = null
-        }
-
-        // If any validation failed, stop here
-        if (!emailOk || !passwordResult.isValid) return
-
-        isLoading = true
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                isLoading = false
-                if (task.isSuccessful) {
-                    // Success: go to Home screen
-                    onLoginSuccess()
-                } else {
-                    // Show Firebase error
-                    Toast.makeText(
-                        context,
-                        task.exception?.localizedMessage ?: "Login failed.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-    }
-
-    // -------- UI LAYOUT --------
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
+
+        Text(
+            text = "Smart Budget",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Email field
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "SmartBudget",
-                style = MaterialTheme.typography.headlineMedium
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email
             )
-            Text(
-                text = "Login",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
-            )
+        )
 
-            // EMAIL
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    emailError = null         // clear error on typing
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Email") },
-                singleLine = true,
-                isError = emailError != null
-            )
-            if (emailError != null) {
-                Text(
-                    text = emailError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-            }
+        Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // PASSWORD
-            var hidePassword by remember { mutableStateOf(true) }
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    passwordError = null      // clear error on typing
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Password") },
-                singleLine = true,
-                visualTransformation = if (hidePassword)
-                    PasswordVisualTransformation() else VisualTransformation.None,
-                trailingIcon = {
-                    TextButton(onClick = { hidePassword = !hidePassword }) {
-                        Text(if (hidePassword) "Show" else "Hide")
-                    }
-                },
-                isError = passwordError != null
-            )
-            if (passwordError != null) {
-                Text(
-                    text = passwordError!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // LOGIN BUTTON
-            Button(
-                onClick = { if (!isLoading) tryLogin() },
-                enabled = !isLoading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Text("Login")
+        // Password field with show/hide option
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (passwordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            trailingIcon = {
+                TextButton(onClick = {
+                    passwordVisible = !passwordVisible
+                }) {
+                    Text(if (passwordVisible) "Hide" else "Show")
                 }
             }
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            // NAVIGATE TO SIGNUP
-            TextButton(onClick = onNavigateToSignup) {
-                Text(
-                    text = "Don't have an account? Sign up",
-                    textAlign = TextAlign.Center
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // Login button
+        Button(
+            onClick = {
+                userViewModel.doLogin(
+                    email = email,
+                    password = password,
+                    onSuccess = {
+                        errorMessage = ""
+                        onLoginSuccess()
+                    },
+                    onError = { message ->
+                        errorMessage = message
+                    }
                 )
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Login")
         }
     }
 }

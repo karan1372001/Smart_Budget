@@ -3,50 +3,58 @@ package com.example.smart_budget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.*
 import com.example.smart_budget.ui.*
 import com.example.smart_budget.ui.theme.SmartBudgetTheme
+import com.example.smart_budget.viewmodel.UserViewModel
 
-// Enum to control which screen is visible
-enum class AppScreen {
-    SPLASH,
-    ONBOARDING,
-    LOGIN,
-    SIGNUP,
-    HOME
-}
-
+/**
+ * Main entry point of the app.
+ * Handles navigation and ViewModel creation.
+ */
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             SmartBudgetTheme {
-                // Single source of truth for navigation
-                var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
 
-                when (currentScreen) {
-                    AppScreen.SPLASH -> SplashScreen(
-                        onTimeout = { currentScreen = AppScreen.ONBOARDING }
-                    )
+                val navController = rememberNavController()
+                val userViewModel: UserViewModel = viewModel()
 
-                    AppScreen.ONBOARDING -> OnboardingScreen(
-                        onGetStarted = { currentScreen = AppScreen.LOGIN }
-                    )
+                NavHost(
+                    navController = navController,
+                    startDestination = "login"
+                ) {
 
-                    AppScreen.LOGIN -> LoginScreen(
-                        onLoginSuccess = { currentScreen = AppScreen.HOME },
-                        onNavigateToSignup = { currentScreen = AppScreen.SIGNUP }
-                    )
+                    composable("login") {
+                        LoginScreen(
+                            userViewModel = userViewModel,
+                            onLoginSuccess = {
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
 
-                    AppScreen.SIGNUP -> SignupScreen(
-                        onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
-                        onSignupSuccess = { currentScreen = AppScreen.HOME }
-                    )
+                    composable("dashboard") {
+                        DashboardScreen(navController)
+                    }
 
-                    AppScreen.HOME -> HomeScreen(
-                        onLogout = { currentScreen = AppScreen.LOGIN }
-                    )
+                    composable("profile") {
+                        ProfileScreen(navController, userViewModel)
+                    }
+
+                    composable("groups") {
+                        GroupsScreen(navController)
+                    }
+
+                    composable("expenses") {
+                        ExpensesScreen(navController)
+                    }
                 }
             }
         }

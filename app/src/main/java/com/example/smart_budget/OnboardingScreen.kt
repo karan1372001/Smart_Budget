@@ -1,7 +1,11 @@
-package com.example.smart_budget
+package com.example.smart_budget.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,27 +15,18 @@ import androidx.compose.ui.unit.dp
 fun OnboardingScreen(
     onGetStarted: () -> Unit
 ) {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Welcome to SmartBudget",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = "Track shared expenses with your friends, like Splitwise.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(Modifier.height(24.dp))
-            Button(onClick = onGetStarted) {
-                Text("Get started")
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Welcome to SmartBudget")
+        Text(text = "In later sprints this screen can show budget tips, app features, etc.")
+
+        Button(onClick = onGetStarted) {
+            Text(text = "Get started")
         }
     }
 }
