@@ -7,24 +7,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
+/**
+ * GroupsScreen
+ *
+ * PURPOSE:
+ * - Displays flatmate group
+ * - Navigates to expenses
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(navController: NavController) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Groups") }
+            )
+        }
+    ) { padding ->
 
-        Text(text = "Groups", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-        Text("Group functionality will be added later.")
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Flatmates", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+                    Text("• Karan")        // ✅ YOUR NAME
+                    Text("• Pershottam")
+                    Text("• Rafay")
+                    Text("• Ranjit")      // ❌ Mahesh REMOVED
+                }
+            }
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back")
+            Button(
+                onClick = { navController.navigate("expenses") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("View Expenses")
+            }
+
+            OutlinedButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Back")
+            }
         }
     }
 }

@@ -16,11 +16,11 @@ fun OnboardingScreen(
     onGetStarted: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .padding(24.dp),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Companion.CenterHorizontally
     ) {
         Text(text = "Welcome to SmartBudget")
         Text(text = "In later sprints this screen can show budget tips, app features, etc.")

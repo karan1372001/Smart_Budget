@@ -3,16 +3,10 @@ package com.example.smart_budget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.smart_budget.ui.*
 import com.example.smart_budget.ui.theme.SmartBudgetTheme
-import com.example.smart_budget.viewmodel.UserViewModel
 
-/**
- * Main entry point of the app.
- * Handles navigation and ViewModel creation.
- */
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +16,6 @@ class MainActivity : ComponentActivity() {
             SmartBudgetTheme {
 
                 val navController = rememberNavController()
-                val userViewModel: UserViewModel = viewModel()
 
                 NavHost(
                     navController = navController,
@@ -30,14 +23,11 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     composable("login") {
-                        LoginScreen(
-                            userViewModel = userViewModel,
-                            onLoginSuccess = {
-                                navController.navigate("dashboard") {
-                                    popUpTo("login") { inclusive = true }
-                                }
-                            }
-                        )
+                        LoginScreen(navController)
+                    }
+
+                    composable("signup") {
+                        SignupScreen(navController)
                     }
 
                     composable("dashboard") {
@@ -45,7 +35,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("profile") {
-                        ProfileScreen(navController, userViewModel)
+                        ProfileScreen(navController)
                     }
 
                     composable("groups") {

@@ -1,45 +1,52 @@
 package com.example.smart_budget.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 /**
  * UserViewModel
- * This class handles all user-related logic.
- * UI screens never talk to Firebase directly.
+ *
+ * PURPOSE:
+ * - Handles user login, signup, and profile data
+ * - Firebase is SIMULATED for ICA stability
+ * - MVVM compliant
+ * - Easy to explain in presentation
  */
 class UserViewModel : ViewModel() {
 
-    private val auth = FirebaseAuth.getInstance()
+    // -----------------------------
+    // AUTHENTICATION (SIMULATED)
+    // -----------------------------
 
-    /**
-     * Logs the user in using Firebase Authentication.
-     * Success and error are returned using callbacks.
-     */
-    fun doLogin(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        if (email.isBlank() || password.isBlank()) {
-            onError("Email and password must not be empty")
-            return
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                onSuccess()
-            }
-            .addOnFailureListener { exception ->
-                onError(exception.message ?: "Login failed")
-            }
+    fun login(email: String, password: String): Boolean {
+        // ICA-level validation
+        return email.isNotBlank() && password.isNotBlank()
     }
 
-    /**
-     * Returns the currently logged-in user's email.
-     */
+    fun signup(email: String, password: String): Boolean {
+        return email.isNotBlank() && password.isNotBlank()
+    }
+
+    fun logout() {
+        // No backend needed for ICA
+    }
+
+    // -----------------------------
+    // PROFILE DATA (STATIC FOR DEMO)
+    // -----------------------------
+
     fun getUserEmail(): String {
-        return auth.currentUser?.email ?: "Unknown user"
+        return "desaikaran584@gmail.com"
+    }
+
+    fun getUserName(): String {
+        return "Karan Desai"
+    }
+
+    fun getUserPhone(): String {
+        return "07553319891"
+    }
+
+    fun saveProfile(name: String, phone: String): Boolean {
+        return name.isNotBlank() && phone.isNotBlank()
     }
 }

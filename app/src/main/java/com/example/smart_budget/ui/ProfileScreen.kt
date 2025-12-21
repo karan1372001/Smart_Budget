@@ -2,56 +2,80 @@ package com.example.smart_budget.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.smart_budget.viewmodel.UserViewModel
 
-/**
- * ProfileScreen
- *
- * This screen shows basic information about the logged-in user.
- * The email is retrieved from UserViewModel.
- * No Firebase logic is used directly in this UI.
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
-    navController: NavController,
-    userViewModel: UserViewModel
-) {
-    val userEmail = userViewModel.getUserEmail()
+fun ProfileScreen(navController: NavController) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
+    var isEditing by remember { mutableStateOf(false) }
 
-        // Screen title
-        Text(
-            text = "User Overview",
-            style = MaterialTheme.typography.headlineMedium
-        )
+    var name by remember { mutableStateOf("Karan") }
+    var email by remember { mutableStateOf("karan@email.com") }
+    var phone by remember { mutableStateOf("07123456789") }
 
-        Spacer(modifier = Modifier.height(16.dp))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") }
+            )
+        }
+    ) { padding ->
 
-        // User email information
-        Text(text = "Logged in as:")
-        Text(
-            text = userEmail,
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Back button
-        Button(
-            onClick = {
-                navController.popBackStack()
-            }
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Back")
+
+            Text(
+                text = "User Information",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isEditing
+            )
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isEditing
+            )
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Contact Number") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isEditing
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { isEditing = !isEditing }
+            ) {
+                Text(if (isEditing) "Save" else "Edit")
+            }
+
+            OutlinedButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { navController.popBackStack() }
+            ) {
+                Text("Back")
+            }
         }
     }
 }
