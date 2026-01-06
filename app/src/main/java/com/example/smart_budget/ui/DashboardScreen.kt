@@ -2,24 +2,50 @@ package com.example.smart_budget.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.smart_budget.viewmodel.ExpenseViewModel
 
-// ✅ REQUIRED for Material3 TopAppBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(
+    navController: NavController,
+    expenseViewModel: ExpenseViewModel = viewModel()
+) {
+    val expenses by expenseViewModel.expenses.collectAsState()
+
+    val currentUser = "Karan"
+
+    var totalPaid = 0.0
+    var totalOwe = 0.0
+    var totalOwed = 0.0
+
+    expenses.forEach { expense ->
+        val splitCount = expense.splitBetween.size
+        if (splitCount == 0) return@forEach
+
+        val share = expense.amount / splitCount
+
+        if (expense.paidBy == currentUser) {
+            totalPaid += expense.amount
+            totalOwed += share * (splitCount - 1)
+        } else {
+            if (expense.splitBetween.contains(currentUser)) {
+                totalOwe += share
+            }
+        }
+    }
+
+    val netBalance = totalOwed - totalOwe
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = "SmartBudget")
-                },
+                title = { Text("SmartBudget Dashboard") },
                 actions = {
-                    // Logout → return to Login screen
                     TextButton(
                         onClick = {
                             navController.navigate("login") {
@@ -36,32 +62,37 @@ fun DashboardScreen(navController: NavController) {
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(padding)
-                .padding(20.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // ===== SUMMARY CARD =====
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+
                     Text(
                         text = "Overall Summary",
                         style = MaterialTheme.typography.titleMedium
                     )
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("You owe: £45")
-                    Text("You are owed: £30")
-                    Text("Net balance: -£15")
+
+                    Text("You paid: £${"%.2f".format(totalPaid)}")
+                    Text("You owe: £${"%.2f".format(totalOwe)}")
+                    Text("You are owed: £${"%.2f".format(totalOwed)}")
+
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Text(
+                        text = "Net balance: £${"%.2f".format(netBalance)}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
             }
 
-            // ===== NAVIGATION BUTTONS =====
             Button(
                 onClick = { navController.navigate("groups") },
                 modifier = Modifier.fillMaxWidth()
