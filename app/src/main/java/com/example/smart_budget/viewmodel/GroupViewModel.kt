@@ -1,46 +1,41 @@
 package com.example.smart_budget.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.example.smart_budget.data.Group
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-/**
- * GroupViewModel
- * --------------
- * Handles group-related data.
- *
- * IMPORTANT FOR ICA:
- * - Groups are pre-defined (sample data)
- * - This demonstrates how groups would work in a real app
- * - No Firebase Firestore is used to keep the app simple
- */
 class GroupViewModel : ViewModel() {
 
-    private val _groups = MutableStateFlow<List<Group>>(emptyList())
-    val groups: StateFlow<List<Group>> = _groups
+    private val _group = MutableStateFlow(Group())
+    val group: StateFlow<Group> = _group
 
-    init {
-        /**
-         * Sample group with your friends
-         * This is enough for ICA demonstration
-         */
-        _groups.value = listOf(
-            Group(
-                id = "group_flatmates",
-                name = "Flatmates",
-                members = listOf(
-                    "Pershottam",
-                    "Rafy",
-                    "Ranjit",
-                    "Mahesh"
-                ),
-                totalExpense = 0.0
-            )
-        )
+    fun load(context: Context) {
+        val prefs = context.getSharedPreferences("group_store", Context.MODE_PRIVATE)
+        val members = prefs.getStringSet("members", emptySet())?.toList() ?: emptyList()
+
+        _group.value = _group.value.copy(members = members)
     }
 
-    fun getGroupById(groupId: String): Group? {
-        return _groups.value.find { it.id == groupId }
+    fun addMember(context: Context, name: String) {
+        if (name.isBlank()) return
+
+        val updatedMembers = _group.value.members + name
+        _group.value = _group.value.copy(members = updatedMembers)
+        save(context)
+    }
+
+    fun deleteMembers(context: Context, names: List<String>) {
+        val updatedMembers = _group.value.members.filterNot { it in names }
+        _group.value = _group.value.copy(members = updatedMembers)
+        save(context)
+    }
+
+    private fun save(context: Context) {
+        val prefs = context.getSharedPreferences("group_store", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putStringSet("members", _group.value.members.toSet())
+            .apply()
     }
 }
