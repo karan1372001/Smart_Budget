@@ -3,45 +3,46 @@ package com.example.smart_budget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import com.example.smart_budget.ui.*
 import com.example.smart_budget.ui.theme.SmartBudgetTheme
+import com.example.smart_budget.viewmodel.UserViewModel
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val userViewModel = UserViewModel(applicationContext)
+
         setContent {
             SmartBudgetTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
+                val navController = rememberNavController()
 
-                    val navController = rememberNavController()
-
-                    NavHost(
-                        navController = navController,
-                        startDestination = "splash"
-                    ) {
-                        composable("splash") {
-                            SplashScreen(navController)
-                        }
-                        composable("login") {
-                            LoginScreen(navController)
-                        }
-                        composable("dashboard") {
-                            DashboardScreen(navController)
-                        }
-                        composable("groups") {
-                            GroupsScreen(navController)
-                        }
-                        composable("expenses") {
-                            ExpensesScreen(navController)
-                        }
-                        composable("profile") {
-                            ProfileScreen(navController)
-                        }
+                NavHost(
+                    navController = navController,
+                    startDestination = "splash"
+                ) {
+                    composable("splash") {
+                        SplashScreen(navController)
+                    }
+                    composable("login") {
+                        LoginScreen(navController, userViewModel)
+                    }
+                    composable("signup") {
+                        SignupScreen(navController, userViewModel)
+                    }
+                    composable("dashboard") {
+                        DashboardScreen(navController)
+                    }
+                    composable("groups") {
+                        GroupsScreen(navController)
+                    }
+                    composable("expenses") {
+                        ExpensesScreen(navController)
+                    }
+                    composable("profile") {
+                        ProfileScreen(navController)
                     }
                 }
             }

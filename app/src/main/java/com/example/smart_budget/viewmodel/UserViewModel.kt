@@ -1,40 +1,21 @@
 package com.example.smart_budget.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
+import androidx.lifecycle.ViewModel
 import com.example.smart_budget.data.AuthRepository
 
-/**
- * UserViewModel
- *
- * PURPOSE:
- * - Handles user login, signup, and logout
- * - Uses AuthRepository for REAL credential checking
- * - Prevents login with wrong password
- */
-class UserViewModel(application: Application) : AndroidViewModel(application) {
+class UserViewModel(context: Context) : ViewModel() {
 
-    private val authRepository = AuthRepository(application)
+    private val authRepository = AuthRepository(context)
 
-    /**
-     * LOGIN
-     * Returns true only if email exists AND password matches
-     */
     fun login(email: String, password: String): Boolean {
-        return authRepository.login(email.trim(), password)
+        return authRepository.login(email, password)
     }
 
-    /**
-     * SIGNUP
-     * Creates a new user if email does not already exist
-     */
     fun signup(email: String, password: String): Boolean {
-        return authRepository.signup(email.trim(), password)
+        return authRepository.signup(email, password)
     }
 
-    /**
-     * LOGOUT
-     */
     fun logout() {
         authRepository.logout()
     }

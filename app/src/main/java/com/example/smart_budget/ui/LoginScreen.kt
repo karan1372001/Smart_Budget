@@ -1,7 +1,5 @@
 package com.example.smart_budget.ui
 
-import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -9,46 +7,34 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smart_budget.viewmodel.UserViewModel
 
-/**
- * LoginScreen
- *
- * FIXED:
- * - User can ONLY login if credentials are correct
- * - Wrong password shows error
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
-
+fun LoginScreen(
+    navController: NavController,
+    userViewModel: UserViewModel
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-    val userViewModel: UserViewModel = viewModel()
+    var error by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("SmartBudget") })
-        }
+        topBar = { TopAppBar(title = { Text("SmartBudget Login") }) }
     ) { padding ->
 
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(24.dp)
-                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -56,9 +42,6 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Password
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -68,38 +51,29 @@ fun LoginScreen(navController: NavController) {
                     if (passwordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(onClick = {
-                        passwordVisible = !passwordVisible
-                    }) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector =
-                                if (passwordVisible)
-                                    Icons.Filled.Visibility
-                                else
-                                    Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility"
+                                if (passwordVisible) Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff,
+                            contentDescription = null
                         )
                     }
                 }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+            }
 
-            // LOGIN BUTTON (FIXED)
             Button(
                 onClick = {
-                    val success = userViewModel.login(email, password)
-
-                    if (success) {
+                    if (userViewModel.login(email, password)) {
                         navController.navigate("dashboard") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        Toast.makeText(
-                            context,
-                            "Invalid email or password",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        error = "Invalid email or password"
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -107,16 +81,12 @@ fun LoginScreen(navController: NavController) {
                 Text("Login")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Navigate to Signup
-            Text(
-                text = "Create a new account",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-                    navController.navigate("signup")
-                }
-            )
+            OutlinedButton(
+                onClick = { navController.navigate("signup") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Create a new account")
+            }
         }
     }
 }
